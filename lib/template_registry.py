@@ -67,6 +67,10 @@ class TemplateRegistry(object):
         self.mm_target = None
         self.last_height = None
 
+        if settings.COINDAEMON_ALGO == 'scrypt':
+            self.algo = 1
+        else:
+            self.algo = 0
         
         # Create first block template on startup
         self.update_block()
@@ -164,7 +168,7 @@ class TemplateRegistry(object):
             return
         self.update_mm_in_progress = True
         self.last_update_mm = Interfaces.timestamper.time()
-        d = self.mm_rpc.getauxblock()
+        d = self.mm_rpc.getauxblock(algo=self.algo)
         d.addCallback(self._update_mm_block)
         d.addErrback(self._update_mm_block_failed)
 
