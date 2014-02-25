@@ -334,9 +334,9 @@ class TemplateRegistry(object):
                 self.update_block()
 
             if settings.SOLUTION_BLOCK_HASH:
-                return (header_hex, block_hash_hex, share_diff, on_submit)
+                return (header_hex, block_hash_hex, share_diff, on_submit, None)
             else:
-                return (header_hex, scrypt_hash_hex, share_diff, on_submit)
+                return (header_hex, scrypt_hash_hex, share_diff, on_submit, None)
 
         # 8. Compare hash with target of mm network
         if hash_int <= job.mm_target:
@@ -348,20 +348,21 @@ class TemplateRegistry(object):
             parent_header = util.flip(header_hex)
             submission = coinbase_hex + parent_hash + branch_count + branch_hex + "000000000000000000" + parent_header;
             mm_submit = self.mm_rpc.getauxblock(self.mm_hash,submission)
-            mm_submit.addCallback(self._mm_submit_ok)
-            mm_submit.addErrback(self._mm_submit_fail)
-            
-            if mm_submit:
-                self.update_block()
-            log.info("Coinbase:%s",coinbase_hex)
-            log.info("Branch Count:%s",branch_count)
-            log.info("Branch Hex:%s",branch_hex)
-            log.info("Parent Hash:%s",parent_hash)
-            log.info("Parent Header:%s",parent_header)
-            log.info("MM Hash:%s",self.mm_hash)
-            log.info(" AuxPow:%s",submission)
-            log.info("    Res:"+str(mm_submit))
 
+            log.debug("Coinbase:%s",coinbase_hex)
+            log.debug("Branch Count:%s",branch_count)
+            log.debug("Branch Hex:%s",branch_hex)
+            log.debug("Parent Hash:%s",parent_hash)
+            log.debug("Parent Header:%s",parent_header)
+            log.debug("MM Hash:%s",self.mm_hash)
+            log.debug(" AuxPow:%s",submission)
+            log.debug("    Res:"+str(mm_submit))
+            if settings.SOLUTION_BLOCK_HASH:
+                block_hash_bin = util.doublesha(''.join([ header_bin[i*4:i*4+4][::-1] for i in range(0, 20) ]))
+                block_hash_hex = block_hash_bin[::-1].encode('hex_codec')
+                return (header_hex, block_hash_hex, share_diff, None, mm_submit)
+            else:
+                return (header_hex, scrypt_hash_hex, share_diff, None, mm_submit)
 
     
         
@@ -369,16 +370,11 @@ class TemplateRegistry(object):
         # Reverse the header and get the potential block hash (for scrypt only) only do this if we want to send in the block hash to the shares table
             block_hash_bin = util.doublesha(''.join([ header_bin[i*4:i*4+4][::-1] for i in range(0, 20) ]))
             block_hash_hex = block_hash_bin[::-1].encode('hex_codec')
-            return (header_hex, block_hash_hex, share_diff, None)
+            return (header_hex, block_hash_hex, share_diff, None, None)
         else:
-            return (header_hex, scrypt_hash_hex, share_diff, None)
+            return (header_hex, scrypt_hash_hex, share_diff, None, None)
 
 
-    def _mm_submit_ok(self,result):
-        log.info("MM Submit "+str(result))
-
-    def _mm_submit_fail(self):
-        log.info("MM Submit Failed")
         
 
         
