@@ -14,7 +14,6 @@ log = lib.logger.get_logger('DBInterface')
 class DBInterface():
     def __init__(self):
         self.dbi = self.connectDB()
-        print dir(self.dbi)
 
     def init_main(self):
         self.dbi.check_tables()
@@ -157,7 +156,7 @@ class DBInterface():
 
     def do_mimport(self, dbi, force):
         log.debug("DBInterface.do_mimport called. force: %s, queue size: %s", 'yes' if force == True else 'no', self.q.qsize())
-        
+
         # Flush the whole queue on force
         forcesize = 0
         if force == True:

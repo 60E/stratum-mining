@@ -308,6 +308,13 @@ class TemplateRegistry(object):
         # Algebra tells us the diff_to_target is the same as hash_to_diff
         share_diff = int(self.diff_to_target(hash_int))
 
+        on_submit = None
+        mm_submit = None
+        if settings.SOLUTION_BLOCK_HASH:
+        # Reverse the header and get the potential block hash (for scrypt only) only do this if we want to send in the block hash to the shares table
+            block_hash_bin = util.doublesha(''.join([ header_bin[i*4:i*4+4][::-1] for i in range(0, 20) ]))
+            block_hash_hex = block_hash_bin[::-1].encode('hex_codec')        
+
         # 5. Compare hash with target of the network
         if hash_int <= job.target:
             # Yay! It is block candidate! 
@@ -333,11 +340,7 @@ class TemplateRegistry(object):
             if on_submit:
                 self.update_block()
 
-            if settings.SOLUTION_BLOCK_HASH:
-                return (header_hex, block_hash_hex, share_diff, on_submit, None)
-            else:
-                return (header_hex, scrypt_hash_hex, share_diff, on_submit, None)
-
+           
         # 8. Compare hash with target of mm network
         if hash_int <= job.mm_target:
             log.info("We found a mm block candidate! %s" % scrypt_hash_hex)
@@ -357,22 +360,13 @@ class TemplateRegistry(object):
             log.debug("MM Hash:%s",self.mm_hash)
             log.debug(" AuxPow:%s",submission)
             log.debug("    Res:"+str(mm_submit))
-            if settings.SOLUTION_BLOCK_HASH:
-                block_hash_bin = util.doublesha(''.join([ header_bin[i*4:i*4+4][::-1] for i in range(0, 20) ]))
-                block_hash_hex = block_hash_bin[::-1].encode('hex_codec')
-                return (header_hex, block_hash_hex, share_diff, None, mm_submit)
-            else:
-                return (header_hex, scrypt_hash_hex, share_diff, None, mm_submit)
 
-    
-        
+            
         if settings.SOLUTION_BLOCK_HASH:
-        # Reverse the header and get the potential block hash (for scrypt only) only do this if we want to send in the block hash to the shares table
-            block_hash_bin = util.doublesha(''.join([ header_bin[i*4:i*4+4][::-1] for i in range(0, 20) ]))
-            block_hash_hex = block_hash_bin[::-1].encode('hex_codec')
-            return (header_hex, block_hash_hex, share_diff, None, None)
+            return (header_hex, block_hash_hex, share_diff, on_submit, mm_submit)
         else:
-            return (header_hex, scrypt_hash_hex, share_diff, None, None)
+            return (header_hex, scrypt_hash_hex, share_diff, on_submit, mm_submit)
+
 
 
         

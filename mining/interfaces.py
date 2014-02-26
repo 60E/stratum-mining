@@ -88,12 +88,12 @@ class ShareManagerInterface(object):
  
     def on_submit_block(self, is_accepted, worker_name, block_header, block_hash, timestamp, ip, share_diff):
         log.info("Block %s %s" % (block_hash, 'ACCEPTED' if is_accepted else 'REJECTED'))
-        dbi.do_import(dbi, True)
+        dbi.do_import(dbi.dbi, True)
         dbi.found_block([worker_name, block_header, block_hash, -1, timestamp, is_accepted, ip, self.block_height, self.prev_hash, share_diff ])
 
     def on_submit_mmblock(self, is_accepted, worker_name, block_header, block_hash, timestamp, ip, share_diff):
         log.info("MM Block %s %s" % (block_hash, 'ACCEPTED' if is_accepted else 'REJECTED'))
-        dbi.do_mimport(dbi, True)
+        dbi.do_mimport(dbi.dbi, True)
         dbi.mfound_block([worker_name, block_header, block_hash, -1, timestamp, is_accepted, ip, self.block_height, self.prev_hash, share_diff ])
 
         
