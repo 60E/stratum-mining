@@ -169,7 +169,7 @@ class MiningService(GenericService):
         # This checks if submitted share meet all requirements
         # and it is valid proof of work.
         try:
-            (block_header, block_hash, share_diff, on_submit) = Interfaces.template_registry.submit_share(job_id,
+            (block_header, block_hash, share_diff, on_submit, mm_submit) = Interfaces.template_registry.submit_share(job_id,
                 worker_name, session, extranonce1_bin, extranonce2, ntime, nonce, difficulty)
         except SubmitException as e:
             # block_header and block_hash are None when submitted data are corrupted
@@ -188,15 +188,24 @@ class MiningService(GenericService):
 
         if is_banned:
             raise SubmitException("Worker is temporarily banned")
- 
+
+
         Interfaces.share_manager.on_submit_share(worker_name, block_header,
             block_hash, difficulty, submit_time, True, ip, '', share_diff)
+        Interfaces.share_manager.on_submit_mmshare(worker_name, block_header,
+            block_hash, difficulty, submit_time, True, ip, '', share_diff)
+
 
         if on_submit != None:
             # Pool performs submitblock() to litecoind. Let's hook
             # to result and report it to share manager
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                 worker_name, block_header, block_hash, submit_time, ip, share_diff)
+
+        if mm_submit != None:
+            mm_submit.addCallback(Interfaces.share_manager.on_submit_mmblock,
+                worker_name, block_header, block_hash, submit_time, ip, share_diff)
+            
 
         return True
             
