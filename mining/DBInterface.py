@@ -84,7 +84,7 @@ class DBInterface():
         self.scheduleImport()
 
     def mrun_import_thread(self):
-        log.debug("run_import_thread current size: %d", self.mq.qsize())
+        log.debug("run_mimport_thread current size: %d", self.mq.qsize())
         
         if self.mq.qsize() >= settings.DB_LOADER_REC_MIN or time.time() >= self.next_force_import_time:  # Don't incur thread overhead if we're not going to run
             reactor.callInThread(self.mimport_thread)
@@ -99,7 +99,7 @@ class DBInterface():
 
     def mrun_import(self):
         log.debug("DBInterface.run_import called")
-        self.mdo_import(self.dbi, False)
+        self.do_mimport(self.dbi, False)
         self.mscheduleImport()
         
     def import_thread(self):
@@ -111,7 +111,7 @@ class DBInterface():
     def mimport_thread(self):
         # Here we are in the thread.
         dbi = self.connectDB()        
-        self.mdo_import(dbi, False)
+        self.do_mimport(dbi, False)
         dbi.close()
 
 
@@ -164,7 +164,7 @@ class DBInterface():
             forcesize = self.mq.qsize()
 
         # Only run if we have data
-        while self.q.empty() == False and (force == True or self.mq.qsize() >= settings.DB_LOADER_REC_MIN or time.time() >= self.next_mm_force_import_time or forcesize > 0):
+        while self.mq.empty() == False and (force == True or self.mq.qsize() >= settings.DB_LOADER_REC_MIN or time.time() >= self.next_mm_force_import_time or forcesize > 0):
             self.next_mm_force_import_time = time.time() + settings.DB_LOADER_FORCE_TIME
             
             force = False
