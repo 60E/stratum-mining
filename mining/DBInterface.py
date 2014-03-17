@@ -28,6 +28,7 @@ class DBInterface():
         self.nextStatsUpdate = 0
 
         self.scheduleImport()
+        self.mscheduleImport()
         
         self.next_force_import_time = time.time() + settings.DB_LOADER_FORCE_TIME
         self.next_mm_force_import_time = time.time() + settings.DB_LOADER_FORCE_TIME
