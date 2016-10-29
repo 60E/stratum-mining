@@ -151,7 +151,6 @@ class TemplateRegistry(object):
         
     def _update_block(self, data):
         start = Interfaces.timestamper.time()
-                
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
         log.info(template.fill_from_rpc(data,self.mm_script,self.mm_target))
         self.last_height = data['height']
@@ -175,7 +174,7 @@ class TemplateRegistry(object):
     def _update_mm_block(self,data):
         self.mm_hash = data['hash']
         self.mm_script = ('fabe6d6d'+data['hash']+'01000000'+'00000000').decode('hex')
-        target = data['target'].decode('hex')[::-1].encode('hex')
+        target = data['_target'].decode('hex')[::-1].encode('hex')
         self.mm_target = int(target,16)
         self.update_mm_in_progress = False
         self.update_block()
