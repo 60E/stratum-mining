@@ -75,10 +75,10 @@ class BlockTemplate(halfnode.CBlock):
         self.nNonce = 0
         self.vtx = [ coinbase, ]
         
-        for tx in data['transactions']:
-            t = halfnode.CTransaction()
-            t.deserialize(StringIO.StringIO(binascii.unhexlify(tx['data'])))
-            self.vtx.append(t)
+        # for tx in data['transactions']:
+        #     t = halfnode.CTransaction()
+        #     t.deserialize(StringIO.StringIO(binascii.unhexlify(tx['data'])))
+        #     self.vtx.append(t)
             
         self.curtime = data['curtime']
         self.timedelta = self.curtime - int(self.timestamper.time()) 
